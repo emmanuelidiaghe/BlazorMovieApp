@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "vw0MJsWXunqX7GwVl9rFzxKVgcgbvseejTgeqJCrj+J530kS6TCdKEJ06b7fAMOctaUC/r0QBIzoJyYlnwQMmA==",
+  "success": true,
+  "projectFilePath": "C:\\Users\\A242736\\source\\repos\\BlazorMovieApp\\MovieApp\\MovieApp.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\A242736\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}
