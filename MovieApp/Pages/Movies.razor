@@ -1,10 +1,4 @@
-﻿
-<h3>Movies</h3>
-
-@code {
-
-}
-@page "/Movies"
+﻿@page "/Movies"
 
 @inject HttpClient client
 
@@ -12,49 +6,42 @@
 @using Data
 
 
-<div class="container-fluid">
+<div class="">
 
     <div class="row justify-content-center" style="margin-bottom:50px">
         <h3 class="text-center">Check Out Your Favorite Movie!</h3>
     </div>
 
-    <div class="row" style="margin:25px;">
+    <div class="">
         <section style="margin-bottom: 10px">
-            <input type="text" class="form-control" placeholder="Search by product name" />
-            <button onclick="GetMovies">Search</button>
+            <div class="search">
+                <input @bind="searchValue"
+                       @onkeydown="@Enter"
+                       placeholder="Type to search"
+                       type="text" />
+                <button class="btn btn-primary" type="submit" @onclick="() => SearchMovies(searchValue)">SEARCH</button>
+            </div>
         </section>
-<hr />
-        @if (Movie != null)
-        {
-            <table class="table table-bordered table-striped">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Id</th>
-                        <th>Title</th>
-                        <th>Overview</th>
-                        <th>Release Date</th>
-                        <th>Vote Average</th>
-                        <th>Vote Count</th>
-                        <th>Image</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var movie in Movie)
-                    {
-                        <tr class="justify-content-center">
-                            <td>@movie.Id</td>
-                            <td>@movie.Title</td>
-                            <td>@movie.Overview</td>
-                            <td>@movie.Release_Date</td>
-                            <td>@movie.Vote_Average</td>
-                            <td>@movie.Vote_Count</td>
-                            <td>
-<img src=${@imgPath+@movie.Poster_Path} height="30" width="30" /></td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        }
+        <hr /><br /><br />
+        <div class="row movies">
+            @if (Movie != null)
+            {
+                @foreach (var movie in Movie)
+                {
+                    <div class="">
+                        <div class="movie">
+                            <h5>@movie.Title</h5>
+                            <div>
+                                <img width="200"
+                                     alt="The movie titled: @movie.Title"
+                                     src="https://image.tmdb.org/t/p/w1280/@(movie.Poster_Path)" />
+                            </div>
+                            <p>(@movie.Release_Date)</p>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
         @if (!Movie.Any())
         {
             <div class="justify-content-center">
@@ -68,10 +55,11 @@
 
     IEnumerable<Movie> Movie = new List<Movie>();
     string imgPath = "https://image.tmdb.org/t/p/w1280/";
+    string searchValue;
+    string apiName = "3/discover/movie?sort_by=popularity.desc&api_key=457eee6dbcc86ae89d88514258f022e7&page=1";
 
     protected override async Task OnInitializedAsync()
     {
-        var apiName = "3/discover/movie?sort_by=popularity.desc&api_key=457eee6dbcc86ae89d88514258f022e7&page=1";
         var httpResponse = await client.GetAsync(apiName);
 
         if (httpResponse.IsSuccessStatusCode)
@@ -82,25 +70,33 @@
         }
     }
 
-    public void SearchMovies()
+    private async Task SearchMovies(string searchTerm)
     {
-        var apiName = "3/discover/movie?sort_by=popularity.desc&api_key=457eee6dbcc86ae89d88514258f022e7&page=1";
         var httpResponse = await client.GetAsync(apiName);
 
         if (httpResponse.IsSuccessStatusCode)
         {
             Response responseData = JsonConvert.DeserializeObject<Response>(await httpResponse.Content.ReadAsStringAsync());
-            Movie = responseData.Movies;
+            var RawMovie = responseData.Movies;
+            Movie = Search(RawMovie, searchTerm).ToArray();
             StateHasChanged();
         }
     }
 
-    public static IEnumerable<Movie> Search(IEnumerable<Movie> movies, string searchTerm)
+    private IEnumerable<Movie> Search(IEnumerable<Movie> movies, string searchTerm)
     {
         if (string.IsNullOrWhiteSpace(searchTerm)) return movies;
 
         var lowerCaseSearchTerm = searchTerm.Trim().ToLower();
 
         return movies.Where(p => p.Title.ToLower().Contains(lowerCaseSearchTerm));
+    }
+
+    public async void Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            await SearchMovies(searchValue);
+        }
     }
 }

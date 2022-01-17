@@ -83,14 +83,14 @@ using MovieApp.Shared;
 #line hidden
 #nullable disable
 #nullable restore
-#line 11 "C:\Users\A242736\source\repos\BlazorMovieApp\MovieApp\Pages\Movies.razor"
+#line 5 "C:\Users\A242736\source\repos\BlazorMovieApp\MovieApp\Pages\Movies.razor"
 using Newtonsoft.Json;
 
 #line default
 #line hidden
 #nullable disable
 #nullable restore
-#line 12 "C:\Users\A242736\source\repos\BlazorMovieApp\MovieApp\Pages\Movies.razor"
+#line 6 "C:\Users\A242736\source\repos\BlazorMovieApp\MovieApp\Pages\Movies.razor"
 using Data;
 
 #line default
@@ -105,32 +105,54 @@ using Data;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 67 "C:\Users\A242736\source\repos\BlazorMovieApp\MovieApp\Pages\Movies.razor"
+#line 54 "C:\Users\A242736\source\repos\BlazorMovieApp\MovieApp\Pages\Movies.razor"
        
 
     IEnumerable<Movie> Movie = new List<Movie>();
     string imgPath = "https://image.tmdb.org/t/p/w1280/";
+    string searchValue;
+    string apiName = "3/discover/movie?sort_by=popularity.desc&api_key=457eee6dbcc86ae89d88514258f022e7&page=1";
 
     protected override async Task OnInitializedAsync()
     {
-        var apiName = "3/discover/movie?sort_by=popularity.desc&api_key=457eee6dbcc86ae89d88514258f022e7&page=1";
         var httpResponse = await client.GetAsync(apiName);
 
         if (httpResponse.IsSuccessStatusCode)
         {
-            IEnumerable<Movie> responseData = JsonConvert.DeserializeObject<IEnumerable<Movie>>(await httpResponse.Content.ReadAsStringAsync());
-            Movie = Search(responseData, "sing");
+            Response responseData = JsonConvert.DeserializeObject<Response>(await httpResponse.Content.ReadAsStringAsync());
+            Movie = responseData.Movies;
             StateHasChanged();
         }
     }
 
-    public static IEnumerable<Movie> Search(IEnumerable<Movie> movies, string searchTerm)
+    private async Task SearchMovies(string searchTerm)
+    {
+        var httpResponse = await client.GetAsync(apiName);
+
+        if (httpResponse.IsSuccessStatusCode)
+        {
+            Response responseData = JsonConvert.DeserializeObject<Response>(await httpResponse.Content.ReadAsStringAsync());
+            var RawMovie = responseData.Movies;
+            Movie = Search(RawMovie, searchTerm).ToArray();
+            StateHasChanged();
+        }
+    }
+
+    private IEnumerable<Movie> Search(IEnumerable<Movie> movies, string searchTerm)
     {
         if (string.IsNullOrWhiteSpace(searchTerm)) return movies;
 
         var lowerCaseSearchTerm = searchTerm.Trim().ToLower();
 
         return movies.Where(p => p.Title.ToLower().Contains(lowerCaseSearchTerm));
+    }
+
+    public async void Enter(KeyboardEventArgs e)
+    {
+        if (e.Code == "Enter" || e.Code == "NumpadEnter")
+        {
+            await SearchMovies(searchValue);
+        }
     }
 
 #line default
