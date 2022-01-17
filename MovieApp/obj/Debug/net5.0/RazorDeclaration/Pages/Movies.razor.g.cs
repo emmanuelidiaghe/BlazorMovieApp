@@ -105,10 +105,11 @@ using Data;
         }
         #pragma warning restore 1998
 #nullable restore
-#line 54 "C:\Users\A242736\source\repos\BlazorMovieApp\MovieApp\Pages\Movies.razor"
+#line 53 "C:\Users\A242736\source\repos\BlazorMovieApp\MovieApp\Pages\Movies.razor"
        
 
     IEnumerable<Movie> Movie = new List<Movie>();
+
     string imgPath = "https://image.tmdb.org/t/p/w1280/";
     string searchValue;
     string apiName = "3/discover/movie?sort_by=popularity.desc&api_key=457eee6dbcc86ae89d88514258f022e7&page=1";
@@ -145,14 +146,6 @@ using Data;
         var lowerCaseSearchTerm = searchTerm.Trim().ToLower();
 
         return movies.Where(p => p.Title.ToLower().Contains(lowerCaseSearchTerm));
-    }
-
-    public async void Enter(KeyboardEventArgs e)
-    {
-        if (e.Code == "Enter" || e.Code == "NumpadEnter")
-        {
-            await SearchMovies(searchValue);
-        }
     }
 
 #line default

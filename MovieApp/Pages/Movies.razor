@@ -16,21 +16,20 @@
         <section style="margin-bottom: 10px">
             <div class="search">
                 <input @bind="searchValue"
-                       @onkeydown="@Enter"
                        placeholder="Type to search"
                        type="text" />
                 <button class="btn btn-primary" type="submit" @onclick="() => SearchMovies(searchValue)">SEARCH</button>
             </div>
         </section>
         <hr /><br /><br />
-        <div class="row movies">
+        <div class="movies">
             @if (Movie != null)
             {
                 @foreach (var movie in Movie)
                 {
                     <div class="">
                         <div class="movie">
-                            <h5>@movie.Title</h5>
+                            <h5><strong>@movie.Title</strong></h5>
                             <div>
                                 <img width="200"
                                      alt="The movie titled: @movie.Title"
@@ -54,6 +53,7 @@
 @code {
 
     IEnumerable<Movie> Movie = new List<Movie>();
+
     string imgPath = "https://image.tmdb.org/t/p/w1280/";
     string searchValue;
     string apiName = "3/discover/movie?sort_by=popularity.desc&api_key=457eee6dbcc86ae89d88514258f022e7&page=1";
@@ -90,13 +90,5 @@
         var lowerCaseSearchTerm = searchTerm.Trim().ToLower();
 
         return movies.Where(p => p.Title.ToLower().Contains(lowerCaseSearchTerm));
-    }
-
-    public async void Enter(KeyboardEventArgs e)
-    {
-        if (e.Code == "Enter" || e.Code == "NumpadEnter")
-        {
-            await SearchMovies(searchValue);
-        }
     }
 }
